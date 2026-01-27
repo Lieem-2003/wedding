@@ -106,36 +106,39 @@ export default function Gallery() {
           }}
         >
           {[...images, ...images].map((src, i) => (
-            <motion.div
-              key={i}
-              onClick={() => setActive(src)}
-              animate={{ scale: [1, 1.04, 1] }} // breathing
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: 'easeInOut'
-              }}
-              style={{
-                minWidth: 220,
-                height: 300,
-                overflow: 'hidden',
-                borderRadius: 22,
-                boxShadow: '0 14px 36px rgba(0,0,0,0.18)',
-                flexShrink: 0,
-                cursor: 'pointer'
-              }}
-            >
-              <img
-                src={src}
-                alt=""
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
-              />
-            </motion.div>
-          ))}
+  <motion.div
+    key={i}
+    onClick={() => setActive(src)}
+    style={{
+      width: '60vw',          // 🔥 mobile friendly
+      maxWidth: 220,          // desktop giữ đẹp
+      height: '40vw',
+      maxHeight: 300,
+      overflow: 'hidden',
+      borderRadius: 22,
+      boxShadow: '0 14px 36px rgba(0,0,0,0.18)',
+      flexShrink: 0,
+      cursor: 'pointer'
+    }}
+  >
+    <motion.img
+      src={src}
+      alt=""
+      animate={{ scale: [1, 1.02, 1] }}   // ✅ breathing nhẹ
+      transition={{
+        duration: 6,
+        repeat: Infinity,
+        ease: 'easeInOut'
+      }}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover'
+      }}
+    />
+  </motion.div>
+))}
+
         </motion.div>
       </motion.div>
 

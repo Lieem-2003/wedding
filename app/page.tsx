@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 
 import CurtainIntro from '@/components/CurtainIntro'
@@ -13,7 +13,7 @@ import EventInfo from '@/components/EventInfo'
 import Countdown from '@/components/Countdown'
 import Gallery from '@/components/Gallery'
 import RSVP from '@/components/RSVP'
-import MusicPlayer from '@/components/MusicPlayer'
+import MusicPlayer, { MusicHandle } from '@/components/MusicPlayer'
 import Calendar from '@/components/Calendar'
 import FallingFlowers from '@/components/FallingFlowers'
 
@@ -27,8 +27,13 @@ export default function HomePage() {
   const [opening, setOpening] = useState(false)
   const [opened, setOpened] = useState(false)
   const [openProgress, setOpenProgress] = useState(0)
+  const [hasWish, setHasWish] = useState(false)
 
-  // ⭐ STATE LỜI CHÚC TRUNG TÂM
+
+  // 🎵 ref điều khiển nhạc
+  const musicRef = useRef<MusicHandle>(null)
+
+  // ⭐ STATE LỜI CHÚC
   const [wishes, setWishes] = useState<Wish[]>([
     {
       name: 'Anh Tuấn',
@@ -49,13 +54,15 @@ export default function HomePage() {
 
   return (
     <>
+      {/* 🎵 MUSIC PLAYER – render 1 lần */}
+      <MusicPlayer ref={musicRef} />
+
       {/* NỘI DUNG THIỆP */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: opening || opened ? 1 : 0 }}
         transition={{ duration: 2 }}
       >
-        <MusicPlayer />
         <Cover progress={openProgress} />
         <Family />
         <Couple />
@@ -64,12 +71,13 @@ export default function HomePage() {
         <Countdown />
         <Gallery />
 
-        {/* RSVP GỬI LỜI CHÚC */}
         <RSVP
-          onNewWish={(w: Wish) =>
+          onNewWish={(w: Wish) => {
             setWishes(prev => [...prev, w])
-          }
+            setHasWish(true) // 🔥 bật overlay ngay lần gửi đầu tiên
+          }}
         />
+
 
         <footer
           style={{
@@ -84,23 +92,27 @@ export default function HomePage() {
         </footer>
       </motion.div>
 
-      {/* OVERLAY LỜI CHÚC – CHỈ SAU KHI MỞ BÌA */}
+      {/* 💬 OVERLAY LỜI CHÚC */}
       <WishOverlay
         wishes={wishes}
-        active={opening || opened}
+        active={(opening || opened) && hasWish}
       />
 
-      {/* BÌA MỞ */}
+
+      {/* 🎬 BÌA MỞ */}
       {!opened && (
         <CurtainIntro
           opening={opening}
-          onOpen={() => setOpening(true)}
+          onOpen={() => {
+            setOpening(true)
+            musicRef.current?.play() // 🔥 PHÁT NHẠC NGAY KHI MỞ BÌA
+          }}
           onFinish={() => setOpened(true)}
           onProgress={setOpenProgress}
         />
       )}
 
-      {/* HOA RƠI */}
+      {/* 🌸 HOA RƠI */}
       <FallingFlowers active={opening || opened} />
     </>
   )

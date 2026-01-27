@@ -20,7 +20,7 @@ const greatVibes = Great_Vibes({
 })
 
 export const metadata: Metadata = {
-  title: "Thiệp mời cướicưới",
+  title: "Thiệp mời cưới",
   description: "Hữu Ngọc & Hải Anh",
 };
 

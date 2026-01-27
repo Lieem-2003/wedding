@@ -24,23 +24,31 @@ export default function WishOverlay({
   const idRef = useRef(0)
 
   useEffect(() => {
-    if (!active || wishes.length === 0) return
+  if (!active || wishes.length === 0) return
 
-    const timer = setInterval(() => {
-      const w = wishes[indexRef.current % wishes.length]
-      indexRef.current++
+  const timer = setInterval(() => {
+    const w = wishes[indexRef.current % wishes.length]
+    indexRef.current++
 
-      setQueue(prev => {
-        const next: LiveWish = {
-          ...w,
-          id: idRef.current++
-        }
-        return [...prev.slice(-4), next] // ✅ tối đa 4 comment (mượt hơn)
-      })
-    }, 2600) // ✅ chậm hơn → dễ đọc + ít lag
+    setQueue(prev => {
+      const next: LiveWish = {
+        ...w,
+        id: idRef.current++
+      }
+      return [...prev.slice(-4), next]
+    })
+  }, 2600)
 
-    return () => clearInterval(timer)
-  }, [active, wishes])
+  return () => clearInterval(timer)
+}, [active, wishes])
+
+useEffect(() => {
+  if (!active) {
+    setQueue([])
+    indexRef.current = 0
+  }
+}, [active])
+
 
   if (!active) return null
 
