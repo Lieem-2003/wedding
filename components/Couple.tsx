@@ -46,7 +46,7 @@ export default function Couple() {
             marginBottom: 12
           }}
         >
-          13:00
+          08:30
         </div>
 
         {/* NGÀY */}
