@@ -44,6 +44,7 @@ export default function HomePage() {
 
         if (Array.isArray(data.wishes) && data.wishes.length > 0) {
           setWishes(data.wishes)
+          setHasWish(true) // ✅ đã có lời chúc → bật overlay
         }
       } catch (err) {
         console.error('Không load được lời chúc', err)
