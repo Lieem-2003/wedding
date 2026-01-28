@@ -133,7 +133,7 @@ export default function Calendar() {
           }}
         >
           ♡ 31/01/2026 – Ngày làm lễ<br />
-          ❤ 01/02/2026 – Ngày thành hôn
+          ❤ 01/02/2026 – Ngày vu quy
         </div>
       </motion.div>
     </section>

@@ -155,7 +155,7 @@ export default function Family() {
         transition={{ duration: 0.6 }}
         style={announce}
       >
-        Trân trọng báo tin lễ thành hôn của
+        Trân trọng báo tin lễ vu quy của
       </motion.p>
 
       {/* TÊN CẶP ĐÔI */}
