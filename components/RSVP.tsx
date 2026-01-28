@@ -1,4 +1,5 @@
 'use client'
+
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -16,47 +17,56 @@ export default function RSVP({
   const [form, setForm] = useState({
     name: '',
     relation: '',
-    message: '',
-    attend: ''
+    message: ''
   })
 
   const [showPopup, setShowPopup] = useState(false)
   const [sending, setSending] = useState(false)
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = () => {
-    if (!form.name || !form.message) {
+  const handleSubmit = async () => {
+    if (!form.name.trim() || !form.message.trim()) {
       alert('Vui lòng nhập tên và lời chúc 💌')
       return
     }
 
-    setSending(true)
+    try {
+      setSending(true)
 
-    setTimeout(() => {
-      const newWish: Wish = {
-        name: form.name,
-        relation: form.relation,
-        message: form.message
+      const res = await fetch('/api/wishes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Gửi thất bại')
       }
 
-      onNewWish(newWish) // ✅ CHỈ GỬI KHI USER SUBMIT
+      // ✅ ĐẨY VÀO OVERLAY LIVE
+      onNewWish(data.wish)
 
-      setForm({ name: '', relation: '', message: '', attend: '' })
-      setSending(false)
+      // reset form
+      setForm({ name: '', relation: '', message: '' })
       setShowPopup(true)
-    }, 600)
+    } catch (err) {
+      alert('Có lỗi xảy ra, vui lòng thử lại 🙏')
+      console.error(err)
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
     <section style={{ paddingBottom: 100 }}>
-      {/* FORM */}
+      {/* ===== FORM ===== */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -66,9 +76,7 @@ export default function RSVP({
       >
         <div style={{ marginBottom: 18 }}>
           <div style={{ fontSize: 28, color: '#ffd7dc' }}>💌</div>
-          <h3 style={titleStyle}>
-            Xác Nhận Tham Dự<br />& Gửi Lời Chúc
-          </h3>
+          <h3 style={titleStyle}>Gửi Lời Chúc</h3>
         </div>
 
         <input
@@ -83,7 +91,7 @@ export default function RSVP({
           name="relation"
           value={form.relation}
           onChange={handleChange}
-          placeholder="Bạn là gì của Dâu - Rể?"
+          placeholder="Bạn là gì của Dâu - Rể nhỉ?"
           style={inputStyle}
         />
 
@@ -102,24 +110,6 @@ export default function RSVP({
           }}
         />
 
-        <select
-          name="attend"
-          value={form.attend}
-          onChange={handleChange}
-          style={{
-            ...inputStyle,
-            appearance: 'none',
-            backgroundImage:
-              'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\'><polygon points=\'0,0 14,0 7,7\' fill=\'%238b1c2d\'/></svg>")',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'right 16px center'
-          }}
-        >
-          <option value="">Bạn có tham dự không?</option>
-          <option value="yes">Có tham dự</option>
-          <option value="no">Không tham dự</option>
-        </select>
-
         <motion.button
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.92 }}
@@ -135,7 +125,7 @@ export default function RSVP({
         </motion.button>
       </motion.div>
 
-      {/* POPUP */}
+      {/* ===== POPUP CẢM ƠN ===== */}
       <AnimatePresence>
         {showPopup && (
           <motion.div
@@ -146,22 +136,28 @@ export default function RSVP({
             onClick={() => setShowPopup(false)}
           >
             <motion.div
-              initial={{ scale: 0.85 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.4 }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
               style={popupBox}
+              onClick={e => e.stopPropagation()}
             >
-              <h4 style={{ marginBottom: 8 }}>💖 Xin chân thành cảm ơn</h4>
-              <p style={{ fontSize: 14, lineHeight: 1.6 }}>
-                Lời chúc của bạn đã được gửi thành công.<br />
-                Gia đình và Dâu Rể rất trân trọng!
-              </p>
-              <button
-                onClick={() => setShowPopup(false)}
-                style={popupBtn}
-              >
-                Đóng
-              </button>
+              <img src="/f1.jpg" alt="" style={popupImage} />
+
+              <div style={popupContent}>
+                <h4 style={popupTitle}>💖 Xin chân thành cảm ơn</h4>
+                <p style={popupText}>
+                  Lời chúc của bạn đã được gửi thành công.<br />
+                  Gia đình và Dâu Rể rất trân trọng!
+                </p>
+
+                <button
+                  onClick={() => setShowPopup(false)}
+                  style={popupBtn}
+                >
+                  Đóng
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -170,7 +166,7 @@ export default function RSVP({
   )
 }
 
-/* ===== STYLE ===== */
+/* ================= STYLE ================= */
 
 const formBox: React.CSSProperties = {
   maxWidth: 360,
@@ -215,6 +211,8 @@ const submitBtn: React.CSSProperties = {
   boxShadow: '0 6px 14px rgba(0,0,0,0.18)'
 }
 
+/* ===== POPUP ===== */
+
 const popupOverlay: React.CSSProperties = {
   position: 'fixed',
   inset: 0,
@@ -226,19 +224,46 @@ const popupOverlay: React.CSSProperties = {
 }
 
 const popupBox: React.CSSProperties = {
-  background: '#fff',
-  borderRadius: 20,
-  padding: 22,
-  textAlign: 'center',
-  maxWidth: 280
+  width: '92%',
+  maxWidth: 420,                 // ✅ RỘNG HƠN
+  background: '#fffaf5',
+  borderRadius: 28,
+  overflow: 'hidden',
+  border: '1.5px solid rgba(139,28,45,0.35)',
+  boxShadow: '0 30px 80px rgba(139,28,45,0.35)'
+}
+
+const popupImage: React.CSSProperties = {
+  width: '100%',
+  maxHeight: 260,
+  objectFit: 'contain',          // 🔥 KHÔNG CẮT ẢNH
+  background: '#f6ede4'
+}
+
+const popupContent: React.CSSProperties = {
+  padding: '18px 22px',
+  textAlign: 'center'
+}
+
+const popupTitle: React.CSSProperties = {
+  marginBottom: 8,
+  color: '#8b1c2d',
+  fontWeight: 600
+}
+
+const popupText: React.CSSProperties = {
+  fontSize: 14,
+  lineHeight: 1.7,
+  color: '#6b1c25',
+  marginBottom: 14
 }
 
 const popupBtn: React.CSSProperties = {
-  marginTop: 14,
-  padding: '8px 18px',
-  borderRadius: 20,
-  border: 'none',
-  background: '#8b1c2d',
-  color: '#fff',
+  padding: '8px 22px',
+  borderRadius: 999,
+  border: '1px solid rgba(139,28,45,0.4)',
+  background: '#fff',
+  color: '#8b1c2d',
+  fontWeight: 600,
   cursor: 'pointer'
 }

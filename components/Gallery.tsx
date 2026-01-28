@@ -1,27 +1,24 @@
 'use client'
 import { motion, useAnimation } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const images = [
-  '/ac1.jpg', '/ac1.jpg', '/ac1.jpg',
-  '/ac1.jpg', '/ac1.jpg', '/ac1.jpg'
+  '/f1.jpg', '/f3.jpg', '/f4.jpg','/avt1.jpg',
+  '/f2.jpg', '/f5.jpg','/avt2.jpg',
 ]
 
 export default function Gallery() {
   const controls = useAnimation()
   const [active, setActive] = useState<string | null>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
 
-  // Auto chạy từ phải → trái
   useEffect(() => {
-    controls.start({
-      x: ['0%', '-50%'],
-      transition: {
-        ease: 'linear',
-        duration: 30,
-        repeat: Infinity
-      }
-    })
-  }, [controls])
+    if (!trackRef.current) return
+    const scrollWidth = trackRef.current.scrollWidth
+    const offsetWidth = trackRef.current.offsetWidth
+    setWidth(scrollWidth - offsetWidth)
+  }, [])
 
   return (
     <section
@@ -107,36 +104,35 @@ export default function Gallery() {
         >
           {[...images, ...images].map((src, i) => (
   <motion.div
-    key={i}
-    onClick={() => setActive(src)}
-    style={{
-      width: '60vw',          // 🔥 mobile friendly
-      maxWidth: 220,          // desktop giữ đẹp
-      height: '40vw',
-      maxHeight: 300,
-      overflow: 'hidden',
-      borderRadius: 22,
-      boxShadow: '0 14px 36px rgba(0,0,0,0.18)',
-      flexShrink: 0,
-      cursor: 'pointer'
+  key={i}
+  onClick={() => setActive(src)}
+  style={{
+    width: '60vw',          // mobile
+    maxWidth: 240,          // desktop
+    aspectRatio: '3 / 4',   // ✅ CHUẨN TỶ LỆ
+    overflow: 'hidden',
+    borderRadius: 22,
+    boxShadow: '0 14px 36px rgba(0,0,0,0.18)',
+    flexShrink: 0,
+    cursor: 'pointer'
+  }}
+>
+  <motion.img
+    src={src}
+    alt=""
+    animate={{ scale: [1, 1.02, 1] }} // breathing nhẹ
+    transition={{
+      duration: 6,
+      repeat: Infinity,
+      ease: 'easeInOut'
     }}
-  >
-    <motion.img
-      src={src}
-      alt=""
-      animate={{ scale: [1, 1.02, 1] }}   // ✅ breathing nhẹ
-      transition={{
-        duration: 6,
-        repeat: Infinity,
-        ease: 'easeInOut'
-      }}
-      style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover'
-      }}
-    />
-  </motion.div>
+    style={{
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover'
+    }}
+  />
+</motion.div>
 ))}
 
         </motion.div>

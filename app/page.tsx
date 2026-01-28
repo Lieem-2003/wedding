@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 import CurtainIntro from '@/components/CurtainIntro'
@@ -16,6 +16,8 @@ import RSVP from '@/components/RSVP'
 import MusicPlayer, { MusicHandle } from '@/components/MusicPlayer'
 import Calendar from '@/components/Calendar'
 import FallingFlowers from '@/components/FallingFlowers'
+import GiftButton from '@/components/GiftButton'
+import SectionDivider from '@/components/SectionDivider'
 
 interface Wish {
   name: string
@@ -27,37 +29,39 @@ export default function HomePage() {
   const [opening, setOpening] = useState(false)
   const [opened, setOpened] = useState(false)
   const [openProgress, setOpenProgress] = useState(0)
+
+  const [wishes, setWishes] = useState<Wish[]>([])
   const [hasWish, setHasWish] = useState(false)
 
-
-  // 🎵 ref điều khiển nhạc
   const musicRef = useRef<MusicHandle>(null)
 
-  // ⭐ STATE LỜI CHÚC
-  const [wishes, setWishes] = useState<Wish[]>([
-    {
-      name: 'Anh Tuấn',
-      relation: 'Bạn đại học',
-      message: 'Chúc hai bạn trăm năm hạnh phúc ❤️'
-    },
-    {
-      name: 'Cô Lan',
-      relation: 'Hàng xóm',
-      message: 'Ngày vui thật rộn ràng, chúc gia đình luôn an vui 💐'
-    },
-    {
-      name: 'Minh Anh',
-      relation: 'Bạn thân cô dâu',
-      message: 'Cuối cùng ngày này cũng tới rồi! 🥰'
+  /* ================= LOAD WISHES FROM DB ================= */
+  useEffect(() => {
+    const fetchWishes = async () => {
+      try {
+        const res = await fetch('/api/wishes')
+        const data = await res.json()
+
+        if (Array.isArray(data.wishes) && data.wishes.length > 0) {
+          setWishes(data.wishes)
+          setHasWish(true) // ✅ đã có lời chúc → bật overlay
+        }
+      } catch (err) {
+        console.error('Không load được lời chúc', err)
+      }
     }
-  ])
+
+    fetchWishes()
+  }, [])
+  /* ======================================================= */
 
   return (
     <>
-      {/* 🎵 MUSIC PLAYER – render 1 lần */}
+      {/* 🎵 MUSIC PLAYER */}
       <MusicPlayer ref={musicRef} />
+      <GiftButton />
 
-      {/* NỘI DUNG THIỆP */}
+      {/* ===== NỘI DUNG THIỆP ===== */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: opening || opened ? 1 : 0 }}
@@ -65,19 +69,21 @@ export default function HomePage() {
       >
         <Cover progress={openProgress} />
         <Family />
+        <SectionDivider />
         <Couple />
         <EventInfo />
+        <SectionDivider />
         <Calendar />
         <Countdown />
         <Gallery />
 
+        {/* ===== RSVP ===== */}
         <RSVP
           onNewWish={(w: Wish) => {
             setWishes(prev => [...prev, w])
             setHasWish(true) // 🔥 bật overlay ngay lần gửi đầu tiên
           }}
         />
-
 
         <footer
           style={{
@@ -98,14 +104,13 @@ export default function HomePage() {
         active={(opening || opened) && hasWish}
       />
 
-
       {/* 🎬 BÌA MỞ */}
       {!opened && (
         <CurtainIntro
           opening={opening}
           onOpen={() => {
             setOpening(true)
-            musicRef.current?.play() // 🔥 PHÁT NHẠC NGAY KHI MỞ BÌA
+            musicRef.current?.play()
           }}
           onFinish={() => setOpened(true)}
           onProgress={setOpenProgress}

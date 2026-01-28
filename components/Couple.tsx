@@ -22,7 +22,7 @@ export default function Couple() {
         }}
       >
         <div style={{ fontSize: 14, letterSpacing: 2 }}>
-          LỄ THÀNH HÔN ĐƯỢC CỬ HÀNH TẠI
+          LỄ VU QUY ĐƯỢC CỬ HÀNH TẠI
         </div>
 
         <div
@@ -46,7 +46,7 @@ export default function Couple() {
             marginBottom: 12
           }}
         >
-          09:00
+          13:00
         </div>
 
         {/* NGÀY */}
@@ -106,7 +106,7 @@ export default function Couple() {
       >
         {/* ẢNH CHÍNH */}
         <motion.img
-          src="/ac1.jpg"
+          src="/f1.jpg"
           alt="Ảnh cưới"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -130,7 +130,7 @@ export default function Couple() {
             gap: 12
           }}
         >
-          {['/ac1.jpg', '/ac1.jpg'].map((src, i) => (
+          {['/f2.jpg', '/f3.jpg'].map((src, i) => (
             <motion.img
               key={i}
               src={src}
@@ -149,6 +149,33 @@ export default function Couple() {
           ))}
         </div>
       </div>
+      <motion.a
+        href="https://maps.app.goo.gl/Zrx659HdRtDJ6GWu9?g_st=ifm"
+        target="_blank"
+        rel="noopener noreferrer"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          marginTop: 34,
+          padding: '12px 22px',
+          borderRadius: 999,
+          background: '#8b1c2d',
+          color: '#fff',
+          fontSize: 14,
+          fontWeight: 600,
+          textDecoration: 'none',
+          boxShadow: '0 10px 24px rgba(139,28,45,0.35)'
+        }}
+      >
+         Xem đường đến nơi tổ chức
+      </motion.a>
     </section>
   )
 }
